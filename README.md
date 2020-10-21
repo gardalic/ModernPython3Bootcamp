@@ -1,2 +1,2 @@
 # modernpython3bootcamp
-Repo for the course Modern Python3 Bootcamp
+Repo for the course Modern Python3 Bootcamp, migrated from BitBucket.
