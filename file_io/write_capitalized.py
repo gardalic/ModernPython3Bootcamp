@@ -6,7 +6,7 @@ with open("file_io/fighters.csv") as f:
 
 print(f"Fighters - {fighters}")
 
-with open("file_io/fighters2.csv", "w") as file:
+with open("file_io/fighters2.csv", "w", newline='') as file:
     csv_writer = writer(file)
     for fighter in fighters:
         csv_writer.writerow(fighter)
