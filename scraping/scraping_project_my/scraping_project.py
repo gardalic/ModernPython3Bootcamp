@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from random import choice, randint
 from requests.api import get
+from time import sleep
 
 
 class QuoteScraper:
@@ -10,7 +11,6 @@ class QuoteScraper:
     def __init__(self):
         self.quotes = []
         self.url = "http://quotes.toscrape.com"
-        self.author_bio = ""
         self.hints = []
 
     def get_response(self, url):
@@ -22,15 +22,13 @@ class QuoteScraper:
     def get_page_quotes(self, response):
         """Parse quote info and append it to the object attribute. If there are none, returns None."""
         soup = BeautifulSoup(response.text, "html.parser")
-        quotes = soup.findAll("div", {"class": "quote"}) 
+        quotes = soup.findAll(class_="quote")
 
         if quotes:
             for quote in quotes:
                 quote_info = {
-                    "quote": quote.find("span", {"class": "text"})
-                    .get_text()
-                    .strip("“”"),
-                    "author": quote.find("small", {"class": "author"}).get_text(),
+                    "quote": quote.find(class_="text").get_text().strip("“”"),
+                    "author": quote.find(class_="author").get_text(),
                     "author_link": quote.find("a")["href"],
                 }
                 self.quotes.append(quote_info)
@@ -47,34 +45,32 @@ class QuoteScraper:
             flag = self.get_page_quotes(
                 self.get_response(f"{self.url}/page/{pg_number}/")
             )
+            print(f"Scraping {self.url}/page/{pg_number}/...")
             pg_number += 1
+            # if flag: sleep(randint(1, 3))
 
     def get_author_bio(self, url):
         """Make request to the author page and get birth date and location."""
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
-        autor_info = soup.find("div", {"class": "author-details"})
+        autor_info = soup.find(class_="author-details")
 
-        born_date = autor_info.find("span", {"class": "author-born-date"}).get_text()
-        born_location = autor_info.find(
-            "span", {"class": "author-born-location"}
-        ).get_text()
+        born_date = autor_info.find(class_="author-born-date").get_text()
+        born_location = autor_info.find(class_="author-born-location").get_text()
         return f"{born_date} in {born_location}"  # Moved parsing out of return, more readable this way
 
     def generate_hint(self, author_name):
         """Generate hint list."""
-        split_name = author_name.split()
+        split_name = author_name.split(" ")
 
-        self.hints.append(f"Their first name starts with {split_name[0][:1]}")
-        self.hints.append(f"Their last name starts with {split_name[-1][:1]}")
+        self.hints.append(f"Their first name starts with {split_name[0][0]}")
+        self.hints.append(f"Their last name starts with {split_name[-1][0]}")
         if len(split_name) > 2:
             self.hints.append("They have a middle name")
         if "." in author_name:
             self.hints.append("The name is initialized")
         if len(split_name) == 2 and "." not in author_name:
-            self.hints.append(
-                "They don't have a middle name and the name is not initialized"
-            )
+            self.hints.append("No middle name and the name is not initialized")
         self.hints.append(f"The last name length is {len(split_name[-1])}")
         self.hints.append(f"The first name length is {len(split_name[0])}")
 
@@ -83,25 +79,27 @@ class QuoteScraper:
         new_game = "y"
         while new_game.lower() == "y":
             quote = choice(self.quotes)
-            self.author_bio = self.get_author_bio(f"{self.url}{quote['author_link']}")
+            author_bio = self.get_author_bio(f"{self.url}{quote['author_link']}")
             self.generate_hint(quote["author"])
-            guess_no = 4
 
-            print(f"Who said: {quote['quote']}")
-            while True:
-                user_input = input()
+            print(f"Quote: {quote['quote']}")
+            user_input = ""
+            guess_no = 4
+            while user_input.lower() != quote["author"].lower():
+                if guess_no == 0:
+                    print(f"No more guesses! It was {quote['author']}!")
+                    break
+                
+                user_input = input(f"Who said it? Guesses remaining {guess_no} ")
                 if user_input.lower() == quote["author"].lower():
                     print(f"Great! You guessed the author in {5 - guess_no} attempts!")
-                    break
+                elif guess_no == 4:
+                    guess_no -= 1
+                    print(f"Hint: {author_bio}")
                 else:
                     guess_no -= 1
-                    if guess_no > 0:
-                        print(
-                            f"Guess again (guesses left: {guess_no})! Hint: {self.hints.pop(randint(0, len(self.hints) - 1))}"
-                        )
-                    else:
-                        print(f"You used up all your guesses...")
-                        break
+                    print(f"Hint: {self.hints.pop(randint(0, len(self.hints) - 1))}")
+
             new_game = input("Do you want to play again (y/n)? ")
 
 
