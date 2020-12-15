@@ -3,13 +3,10 @@ from bs4 import BeautifulSoup
 
 # response = requests.get("http://quotes.toscrape.com/page/11/")
 # print(response)
-response = requests.get("http://quotes.toscrape.com/page/10/").text
+response = requests.get('http://quotes.toscrape.com/author/J-M-Barrie')
 
-# print(response)
-soup = BeautifulSoup(response, "html.parser")
-quotes = soup.findAll("div", {"class": "quote"})
-# if quotes: print(True)
-# print(quotes[0].find("span", {"class": "text"}).get_text())
-# print(quotes[0].find("small", {"class": "author"}).get_text())
-# link = quotes[0].find("a")["href"]
-print(quotes[0].find("a")["href"])
+# print(response.content)
+soup = BeautifulSoup(response.text, "html.parser")
+quotes = soup.find(class_="author-description")
+print(quotes)
+# print(quotes)
