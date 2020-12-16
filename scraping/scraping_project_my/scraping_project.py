@@ -34,31 +34,38 @@ class QuoteGame:
 
         return hints
 
+    def game_round(self, quote, hints):
+        """Runs a single round of the guessing game."""
+        print(f"Quote: {quote['quote']}")
+        user_input = ""
+        guess_no = 4
+
+        while user_input.lower() not in (
+            quote["author"].lower(),
+            quote["author"].lower().replace(".", ""),
+        ):
+            if guess_no == 0:
+                print(f"No more guesses! It was {quote['author']}!")
+                break
+            user_input = input(f"Who said it? Guesses remaining {guess_no}\n")
+            if user_input.lower() == quote["author"].lower():
+                print(f"Great! You guessed the author in {5 - guess_no} attempts!")
+            elif guess_no == 4:
+                guess_no -= 1
+                print(f"Hint: {quote['author_born']}")
+            else:
+                guess_no -= 1
+                print(f"Hint: {hints.pop(randint(0, len(hints) - 1))}")
+
     def game_loop(self):
-        """Run the main loop. Give a quote and ask for 4 guesses. After each game, ask for new game."""
+        """Run the main loop. After each game, ask for new game."""
         new_game = "y"
         while new_game.lower() == "y":
             quote = choice(self.quotes)
             hints = self.generate_hints(quote["author"])
 
-            print(f"Quote: {quote['quote']}")
-            user_input = ""
-            guess_no = 4
+            self.game_round(quote, hints)
 
-            while user_input.lower() != quote["author"].lower():
-                if guess_no == 0:
-                    print(f"No more guesses! It was {quote['author']}!")
-                    break
-
-                user_input = input(f"Who said it? Guesses remaining {guess_no}\n")
-                if user_input.lower() == quote["author"].lower():
-                    print(f"Great! You guessed the author in {5 - guess_no} attempts!")
-                elif guess_no == 4:
-                    guess_no -= 1
-                    print(f"Hint: {quote['author_born']}")
-                else:
-                    guess_no -= 1
-                    print(f"Hint: {hints.pop(randint(0, len(hints) - 1))}")
             new_game = input("Do you want to play again (y/n)? ")
 
 
