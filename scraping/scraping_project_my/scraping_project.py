@@ -71,10 +71,10 @@ class QuoteGame:
 
 if __name__ == "__main__":
     # Generate the CSV, can have logic here to just use CSV
-    # qs = QuoteScraper()
-    # qs.scrape_site()
-    # # print(qs.quotes)
-    # qs.make_csv()
+    qs = QuoteScraper()
+    qs.scrape_site()
+    # print(qs.quotes)
+    qs.make_csv()
 
     # Read from CSV and run the game
     qg = QuoteGame()
