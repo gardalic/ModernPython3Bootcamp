@@ -13,12 +13,14 @@ import re
 def censor(text) -> str:
     pattern = re.compile(r"\bfrack\w*\b", re.IGNORECASE)
     # match = re.findall(pattern, text)
-    if re.findall(pattern, text):
-        return re.sub(pattern, "CENSORED", text)
-    else:
-        return text
+    # if re.findall(pattern, text):
+    #     return re.sub(pattern, "CENSORED", text)
+    # else:
+    #     return text
+    return re.sub(pattern, "CENSORED", text)
 
 
 print(censor("Frack you"))  # CENSORED you
-print(censor("I hope you fracking die")) # I hope you CENSORED die
-print(censor("you fracking Frack")) # you CENSORED CENSORED
+print(censor("I hope you fracking die"))  # I hope you CENSORED die
+print(censor("you fracking Frack"))  # you CENSORED CENSORED
+print(censor("no match test"))
